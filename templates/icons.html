@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{ title }} - {{ description }}</title>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<style>
+body{margin:0;font:14px sans-serif;background:#EFF1F5;}
+.container{display:flex;align-items: flex-start;align-content:flex-start;flex-wrap:wrap;}
+.search{display:block;width:240px;margin:16px;padding:16px 16px 16px 56px;border-radius:4px;border:0;font-size:inherit;font-family:inherit;outline:none;background:#fff url(svg/search.svg) no-repeat 16px 50%;background-size:24px 24px;box-shadow:inset 0 1px 2px rgba(0,0,0,.2);}
+.icon{text-align:center;padding:16px;margin:0 0 16px 16px;border-radius:4px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.5);}
+.icon img{display:block;margin:0 auto 8px;}
+.icon-name{display:block;white-space:nowrap;}
+.info{color:#999;padding:16px;}
+</style>
+</head>
+<body>
+<div id="app">
+    <input class="search" type="text" v-model="search" placeholder="search..."/>
+    <div class="container">
+        <div v-for="icon in filteredList" class="icon">
+            <img v-bind:src="'svg/' + icon.name + '.svg'" width="48" height="48" alt="">
+            <span class="icon-name">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
+        </div>
+    </div>
+    <p class="info">Version: {{ version }}, build date: {{ date }}, contains {{ icons.length }} icons.</p>
+</div>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            search: '',
+            icons: [
+                {{#icons}}
+                { 'name': '{{name}}' },
+                {{/icons}}
+            ]
+        },
+        computed: {
+            filteredList() {
+                return this.icons.filter(icon => {
+                    if ((new RegExp(this.search, 'i')).test(icon.name)) {
+                        return icon;
+                    }
+                })
+            }
+        }
+    });
+</script>
+</body>
+</html>
