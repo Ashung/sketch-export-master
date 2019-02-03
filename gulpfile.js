@@ -5,15 +5,13 @@ const exec = require('child-process-promise').exec;
 const del = require('del');
 const vinylPaths = require('vinyl-paths');
 const svg2vectordrawable = require('svg2vectordrawable/lib/svg-file-to-vectordrawable-file');
+const mustacheRender = require("mustache").render;
 
 const imagemin = require('gulp-imagemin');
 const rename = require('gulp-rename');
 const mustache = require("gulp-mustache");
-const svgicons2svgfont = require('gulp-svgicons2svgfont');
-const svg2ttf = require('gulp-svg2ttf');
-const ttf2woff = require('gulp-ttf2woff');
+const iconfont = require('gulp-iconfont');
 const svgSprite = require('gulp-svg-sprite');
-
 
 let sketchtool = '/Applications/Sketch.app/Contents/Resources/sketchtool/bin/sketchtool';
 let sketchFile = './sketch/icons.sketch';
@@ -247,7 +245,6 @@ taskSVG.description = 'Export SVG';
 
 gulp.task('SVG', taskSVG);
 
-
 // Android: Vector Drawable
 function subtaskCleanVectorDrawable() {
     return del(['./dest/android-vector-drawable']);
@@ -267,76 +264,65 @@ subtaskCreateVectorDrawable.displayName = 'Create Vector Drawable';
 let taskVectorDrawable = gulp.series('SVG', subtaskCleanVectorDrawable, subtaskCreateVectorDrawable);
 taskSVG.description = 'Export Vector Drawable';
 
-gulp.task('Android Vector Drawable', taskVectorDrawable);
+gulp.task('Vector Drawable', taskVectorDrawable);
 
 // Web: Icon font
-const mustacheRender = require("mustache").render;
-
-let fontMetadata = {
-    id: 'icon-font',
-    name: 'icon-font',
-    version: packageInfo.version.match(/^\d+\.\d+/)[0],
-    copyright: 'License ' + packageInfo.license + ' ' + new Date().getFullYear() + ', ' + packageInfo.author + '.'
-};
+let fontName = 'icon-font';
 
 function subtaskCleanIconFont() {
     return del(['./dest/iconfont']);
 }
 subtaskCleanIconFont.displayName = 'Clean Icon Font';
 
+function renderMustacheToFile(inputFile, outputFile, data) {
+    let templateString = fs.readFileSync(inputFile, 'utf-8');
+    let code = mustacheRender(templateString, data);
+    fs.writeFileSync(outputFile, code);
+}
+
 function subtaskCreateIconFont() {
     let dest = './dest/iconfont';
     return gulp.src('./dest/svg/*.svg')
-        .pipe(svgicons2svgfont({
-            fontName: fontMetadata.name,
-            fontId: fontMetadata.id,
+        .pipe(iconfont({
+            fontName: fontName,
+            prependUnicode: true,
+            formats: ['svg', 'ttf', 'eot', 'woff', 'woff2'],
+            timestamp: Math.round(Date.now() / 1000),
             fontHeight: 1000,
             normalize: true
         }))
         .on('glyphs', glyphs => {
-
-            let icons = [];
-            glyphs.forEach(glyph => {
+            let icons = glyphs.map(glyph => {
                 let character = glyph.unicode[0];
                 let codepoint = character.codePointAt(0).toString(16);
                 if (codepoint.length < 4) {
                     codepoint = '0'.repeat(4 - codepoint.length) + codepoint;
                 }
-                icons.push(
-                    {
-                        name: glyph.name,
-                        className: glyph.name.replace(/_/g, '-'),
-                        character: character,
-                        code: codepoint
-                    }
-                );
+                return {
+                    name: glyph.name,
+                    className: 'ic-' + glyph.name.replace(/_/g, '-'),
+                    character: character,
+                    code: codepoint
+                };
             });
-
-            let htmlTemplate = fs.readFileSync('./templates/iconfont.html', 'utf-8');
-            let htmlCode = mustacheRender(htmlTemplate, {
+            renderMustacheToFile('./templates/iconfont.html', path.join(dest, 'iconfont.html'), {
                 title: projectTitle,
                 description: projectDescription,
                 version: projectVersion,
                 date: projectBuildDate,
                 icons: icons,
-                fontName: fontMetadata.name
+                fontName: fontName
             });
-            fs.writeFileSync(path.join(dest, 'iconfont.html'), htmlCode);
-
+            renderMustacheToFile('./templates/iconfont.css', path.join(dest, 'iconfont.css'), {
+                icons: icons,
+                fontName: fontName
+            });
         })
-        .pipe(svg2ttf({
-            version: fontMetadata.version,
-            copyright: fontMetadata.copyright
-        }))
-        .pipe(gulp.dest(dest))
-        .pipe(ttf2woff())
         .pipe(gulp.dest(dest));
 }
 subtaskCreateIconFont.displayName = 'Create Icon Font';
 
-let taskIconFont = gulp.series(subtaskCleanIconFont, subtaskCreateIconFont);
+let taskIconFont = gulp.series('SVG', subtaskCleanIconFont, subtaskCreateIconFont);
 taskIconFont.description = 'Export Icon Font';
 
 gulp.task('Icon Font', taskIconFont);
-
-

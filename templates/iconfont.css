@@ -1,0 +1,34 @@
+@font-face {
+    font-family: "{{ fontName }}";
+    font-style: normal;
+    font-weight: normal;
+    font-display: auto;
+    src: url("{{ fontName }}.eot");
+    src: url("{{ fontName }}.eot") format("embedded-opentype"),
+         url("{{ fontName }}.woff2") format("woff2"),
+         url("{{ fontName }}.woff") format("woff"),
+         url("{{ fontName }}.ttf") format("truetype"),
+         url("{{ fontName }}.svg") format("svg");
+}
+
+.ic {
+    font-family: "{{ fontName }}";
+    display: inline-block;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+.ic-s { font-size: 16px; }
+.ic-m { font-size: 20px; }
+.ic-1x { font-size: 24px; }
+.ic-l { font-size: 32px; }
+.ic-2x { font-size: 48px; }
+
+{{#icons}}
+.{{className}}:before { content: "\{{code}}"; }
+{{/icons}}

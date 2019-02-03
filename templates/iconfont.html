@@ -15,25 +15,21 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
 .icon-name,.icon-code{display:block;white-space:nowrap;}
 .icon-code{color:#999;font-family:Monaco,Consolos,monospace;}
 .info{color:#999;padding:16px;}
-@font-face{font-family:"{{ fontName }}";src:url("{{ fontName }}.woff") format("woff"),url("{{ fontName }}.ttf") format("truetype");}
-[data-icon]:before,.iconfont:before{font-family:{{ fontName }};content:attr(data-icon);speak:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 .icon-thumb:before{font-size:48px;}
-
-{{#icons}}
-.iconfont__{{className}}:before{content:"\{{code}}"}
-{{/icons}}
+[data-icon]:before{font-family:{{ fontName }};content:attr(data-icon);speak:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 </style>
+<link rel="stylesheet" href="iconfont.css">
 </head>
 <body>
 <div id="app">
-    <div class="search iconfont iconfont__search">
+    <div class="ic ic-search search">
         <input type="text" v-model="search" placeholder="search..."/>
     </div>
     <div class="container">
         <div v-for="icon in filteredList" class="icon">
             <span class="icon-thumb" aria-hidden="true" v-bind:data-icon=" icon.character "></span>
             <span class="icon-name">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
-            <span class="icon-code">{{=<% %>=}}{{ '&#x' + icon.code + ';' }}<%={{ }}=%></span>
+            <span class="icon-code">{{=<% %>=}}{{ icon.code }}<%={{ }}=%></span>
         </div>
     </div>
     <p class="info">Version: {{ version }}, build date: {{ date }}, contains {{ icons.length }} icons.</p>
@@ -45,7 +41,7 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
             search: '',
             icons: [
                 {{#icons}}
-                { 'name': '{{name}}', 'character': '{{character}}', 'code': '{{code}}' },
+                { 'name': '{{className}}', 'character': '{{character}}', 'code': '{{code}}' },
                 {{/icons}}
             ]
         },

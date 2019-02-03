@@ -13,14 +13,12 @@
     "child-process-promise": "^2.2.1",
     "del": "^3.0.0",
     "gulp": "^4.0.0",
+    "gulp-iconfont": "^10.0.2",
     "gulp-imagemin": "^5.0.3",
     "gulp-mustache": "^4.1.0",
     "gulp-rename": "^1.4.0",
     "gulp-svg-sprite": "^1.5.0",
-    "gulp-svg2ttf": "^2.0.1",
-    "gulp-svgicons2svgfont": "^5.0.1",
-    "gulp-ttf2woff": "^1.1.1",
-    "svg2vectordrawable": "^2.6.5",
+    "svg2vectordrawable": "^2.6.6",
     "vinyl-paths": "^2.1.0"
   }
 }
