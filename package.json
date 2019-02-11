@@ -18,7 +18,7 @@
     "gulp-mustache": "^4.1.0",
     "gulp-rename": "^1.4.0",
     "gulp-svg-sprite": "^1.5.0",
-    "svg2vectordrawable": "^2.6.6",
+    "svg2vectordrawable": "^2.6.7",
     "vinyl-paths": "^2.1.0"
   }
 }

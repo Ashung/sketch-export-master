@@ -8,24 +8,39 @@
 <style>
 body{margin:0;font:14px sans-serif;background:#EFF1F5;}
 .container{display:flex;align-items: flex-start;align-content:flex-start;flex-wrap:wrap;}
-.search{display:block;width:240px;margin:16px;padding:16px 16px 16px 56px;border-radius:4px;border:0;font-size:inherit;font-family:inherit;outline:none;background:#fff url(svg/search.svg) no-repeat 16px 50%;background-size:24px 24px;box-shadow:inset 0 1px 2px rgba(0,0,0,.2);}
-.icon{text-align:center;padding:16px;margin:0 0 16px 16px;border-radius:4px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.5);cursor:pointer;}
-.icon img{display:block;margin:0 auto 8px;}
-.icon-name{display:block;white-space:nowrap;}
+.search{margin:16px;position:relative;}
+.search input{border-radius:4px;border:0;display:block;width:240px;padding:16px 16px 16px 56px;border:0;font-size:inherit;font-family:inherit;outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.2);}
+.search .icon-search{position:absolute;top:15px;left:16px;}
+.thumb{text-align:center;padding:16px;margin:0 0 16px 16px;border-radius:4px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.5);cursor:pointer;}
+.thumb img{display:block;margin:0 auto 8px;}
+.thumb-name{display:block;white-space:nowrap;}
 .info{color:#999;padding:16px;}
 #toast{background:rgba(0,0,0,0.8);color:#fff;padding:10px;border-radius:3px;position:fixed;left:50%;bottom:20px;transform:translate(-50%,-50%);z-index:9999;}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute">
+    {{#shapes}}
+    {{{svg}}}
+    {{/shapes}}
+</svg>
 <div id="app">
-    <input class="search" type="text" v-model="search" placeholder="search..."/>
+    <div class="search">
+        <svg class="icon-search" viewBox="0 0 24 24" width="24" height="24">
+            <use xlink:href="#search"></use>
+        </svg>
+        <i class="icon icon-search"></i>
+        <input type="text" v-model="search" placeholder="search..."/>
+    </div>
     <div class="container">
-        <div v-for="icon in filteredList" class="icon" v-bind:data-clipboard-text="'svg/' + icon.name + '.svg'" v-on:click="copy()">
-            <img v-bind:src="'svg/' + icon.name + '.svg'" width="48" height="48" alt="">
-            <span class="icon-name">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
+        <div v-for="icon in filteredList" class="thumb" v-bind:data-clipboard-text="'#'+icon.name" v-on:click="copy()">
+            <svg v-bind:viewBox="'0 0 ' + icon.viewportWidth + ' ' + icon.viewportHeight" width="48" height="48">
+                <use v-bind="{'xlink:href' : '#' + icon.name}"></use>
+            </svg>
+            <span class="thumb-name">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
         </div>
     </div>
-    <p class="info">Version: {{ version }}, build date: {{ date }}, contains {{ icons.length }} icons.</p>
+    <p class="info">Version: {{ version }}, build date: {{ buildDate }}, contains {{ shapes.length }} icons.</p>
 </div>
 <script>
     const app = new Vue({
@@ -33,9 +48,9 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
         data: {
             search: '',
             icons: [
-                {{#icons}}
-                { 'name': '{{name}}' }{{^last}},{{/last}}
-                {{/icons}}
+                {{#shapes}}
+                { 'name': '{{name}}', 'viewportWidth': '{{width.outer}}', 'viewportHeight': '{{height.outer}}'}{{^last}},{{/last}}
+                {{/shapes}}
             ]
         },
         computed: {
@@ -49,7 +64,7 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
         },
         methods: {
             copy: () => {
-                let clipboard = new ClipboardJS('.icon');
+                let clipboard = new ClipboardJS('.thumb');
                 clipboard.on('success', e => {
                     if (document.getElementById('toast')) {
                         let toast = document.getElementById('toast');

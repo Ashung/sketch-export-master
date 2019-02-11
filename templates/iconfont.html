@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>{{ title }} - {{ description }}</title>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <style>
 body{margin:0;font:14px sans-serif;background:#EFF1F5;}
 .container{display:flex;align-items: flex-start;align-content:flex-start;flex-wrap:wrap;}
@@ -16,6 +17,8 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
 .icon-code{color:#999;font-family:Monaco,Consolos,monospace;}
 .info{color:#999;padding:16px;}
 .icon-thumb:before{font-size:48px;}
+.copy{cursor:pointer;}
+#toast{background:rgba(0,0,0,0.8);color:#fff;padding:10px;border-radius:3px;position:fixed;left:50%;bottom:20px;transform:translate(-50%,-50%);z-index:9999;}
 [data-icon]:before{font-family:{{ fontName }};content:attr(data-icon);speak:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 </style>
 <link rel="stylesheet" href="iconfont.css">
@@ -27,9 +30,9 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
     </div>
     <div class="container">
         <div v-for="icon in filteredList" class="icon">
-            <span class="icon-thumb" aria-hidden="true" v-bind:data-icon=" icon.character "></span>
-            <span class="icon-name">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
-            <span class="icon-code">{{=<% %>=}}{{ icon.code }}<%={{ }}=%></span>
+            <span class="icon-thumb" aria-hidden="true" v-bind:data-icon="icon.character"></span>
+            <span class="copy icon-name" v-bind:data-clipboard-text="icon.name" v-on:click="copy()">{{=<% %>=}}{{ icon.name }}<%={{ }}=%></span>
+            <span class="copy icon-code" v-bind:data-clipboard-text="icon.code" v-on:click="copy()">{{=<% %>=}}{{ icon.code }}<%={{ }}=%></span>
         </div>
     </div>
     <p class="info">Version: {{ version }}, build date: {{ date }}, contains {{ icons.length }} icons.</p>
@@ -41,7 +44,7 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
             search: '',
             icons: [
                 {{#icons}}
-                { 'name': '{{className}}', 'character': '{{character}}', 'code': '{{code}}' },
+                { 'name': '{{className}}', 'character': '{{character}}', 'code': '{{code}}' }{{^last}},{{/last}}
                 {{/icons}}
             ]
         },
@@ -52,6 +55,25 @@ body{margin:0;font:14px sans-serif;background:#EFF1F5;}
                         return icon;
                     }
                 })
+            }
+        },
+        methods: {
+            copy: () => {
+                let clipboard = new ClipboardJS('.copy');
+                clipboard.on('success', e => {
+                    if (document.getElementById('toast')) {
+                        let toast = document.getElementById('toast');
+                        toast.remove(toast.selectedIndex);
+                    }
+                    clipboard.destroy();
+                    let toast = document.createElement('div');
+                    toast.setAttribute('id', 'toast');
+                    toast.innerHTML = `"${e.text}" copy!`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.remove(toast.selectedIndex);
+                    }, 1500);
+                });
             }
         }
     });

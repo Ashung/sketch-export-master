@@ -70,9 +70,33 @@ gulp "Vector Drawable"
 ``````
 
 
-### Web: SVG Sprite
+### Web: SVG CSS Sprite
 
-(WIP)
+```bash
+gulp "SVG CSS Sprite"
+```
 
+### Web: SVG View Sprite
 
+```bash
+gulp "SVG View Sprite"
+```
+
+### Web: SVG Defs Sprite
+
+```bash
+gulp "SVG Defs Sprite"
+```
+
+### Web: SVG Symbol Sprite
+
+```bash
+gulp "SVG Symbol Sprite"
+```
+
+### Web: SVG Stack Sprite
+
+```bash
+gulp "SVG Stack Sprite"
+```
 

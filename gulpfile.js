@@ -254,7 +254,7 @@ subtaskCleanVectorDrawable.displayName = 'Clean Vector Drawable';
 function subtaskCreateVectorDrawable() {
     let dest = './dest/android-vector-drawable';
     return gulp.src('./dest/svg/*.svg')
-        .pipe(vinylPaths(function (file) {
+        .pipe(vinylPaths(file => {
             let outputPath = path.join(dest, 'ic_' + path.basename(file).replace(/\.svg$/, '.xml'));
             return svg2vectordrawable(file, outputPath);
         }));
@@ -285,10 +285,9 @@ function subtaskCreateIconFont() {
     return gulp.src('./dest/svg/*.svg')
         .pipe(iconfont({
             fontName: fontName,
-            prependUnicode: true,
             formats: ['svg', 'ttf', 'eot', 'woff', 'woff2'],
             timestamp: Math.round(Date.now() / 1000),
-            fontHeight: 1000,
+            fontHeight: 1024,
             normalize: true
         }))
         .on('glyphs', glyphs => {
@@ -326,3 +325,181 @@ let taskIconFont = gulp.series('SVG', subtaskCleanIconFont, subtaskCreateIconFon
 taskIconFont.description = 'Export Icon Font';
 
 gulp.task('Icon Font', taskIconFont);
+
+// SVG Sprite
+let svgSpriteCommonConfig = {
+    shape: {
+        id: {
+            separator: '-',
+            whitespace: '-',
+            generator: (name, file) => {
+                return name.replace(/\.svg$/, '').replace(/(_|-|\s+)/g, '-');
+            }
+        }
+    },
+    variables: {
+        'title': projectTitle,
+        'description': projectDescription,
+        'version': projectVersion,
+        'buildDate': projectBuildDate,
+    },
+    mode: {}
+};
+
+// SVG CSS Sprite
+function subtaskCleanSVGCSSSprite() {
+    return del(['./dest/svg-css-sprite']);
+}
+subtaskCleanSVGCSSSprite.displayName = 'Clean SVG CSS Sprite';
+
+function subtaskCreateSVGCSSSprite() {
+    let config = svgSpriteCommonConfig;
+    config.mode.css = {
+        dest: 'svg-css-sprite',
+        bust: false,
+        prefix: '.icon-%s',
+        dimensions: '',
+        sprite: 'sprite.svg',
+        common: 'icon',
+        example: {
+            template: './templates/svg_css_sprite.html',
+            dest: 'index.html'
+        },
+        render: {
+            css: {
+                template: './templates/svg_css_sprite.css',
+                dest: 'sprite.css'
+            }
+        }
+    };
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(svgSprite(config))
+        .pipe(gulp.dest('./dest/'));
+}
+subtaskCreateSVGCSSSprite.displayName = 'Create SVG CSS Sprite';
+
+let taskSVGCSSSprite = gulp.series('SVG', subtaskCleanSVGCSSSprite, subtaskCreateSVGCSSSprite);
+taskSVGCSSSprite.description = 'Export SVG CSS Sprite';
+
+gulp.task('SVG CSS Sprite', taskSVGCSSSprite);
+
+// SVG View Sprite
+function subtaskCleanSVGViewSprite() {
+    return del(['./dest/svg-view-sprite']);
+}
+subtaskCleanSVGViewSprite.displayName = 'Clean SVG View Sprite';
+
+function subtaskCreateSVGViewSprite() {
+    let config = svgSpriteCommonConfig;
+    config.mode.view = {
+        dest: 'svg-view-sprite',
+        bust: false,
+        prefix: '.icon-%s',
+        dimensions: '',
+        sprite: 'sprite.svg',
+        common: 'icon',
+        example: {
+            template: './templates/svg_view_sprite.html',
+            dest: 'index.html'
+        },
+        render: {
+            css: {
+                template: './templates/svg_css_sprite.css',
+                dest: 'sprite.css'
+            }
+        }
+    };
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(svgSprite(config))
+        .pipe(gulp.dest('./dest/'));
+}
+subtaskCreateSVGViewSprite.displayName = 'Create SVG View Sprite';
+
+let taskSVGViewSprite = gulp.series('SVG', subtaskCleanSVGViewSprite, subtaskCreateSVGViewSprite);
+taskSVGViewSprite.description = 'Export SVG View Sprite';
+
+gulp.task('SVG View Sprite', taskSVGViewSprite);
+
+// SVG Defs Sprite
+function subtaskCleanSVGDefsSprite() {
+    return del(['./dest/svg-defs-sprite']);
+}
+subtaskCleanSVGDefsSprite.displayName = 'Clean SVG Defs Sprite';
+
+function subtaskCreateSVGDefsSprite() {
+    let config = svgSpriteCommonConfig;
+    config.mode.defs = {
+        dest: 'svg-defs-sprite',
+        bust: false,
+        sprite: 'sprite.svg',
+        example: {
+            template: './templates/svg_defs_sprite.html',
+            dest: 'index.html'
+        }
+    };
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(svgSprite(config))
+        .pipe(gulp.dest('./dest/'));
+}
+subtaskCreateSVGDefsSprite.displayName = 'Create SVG Defs Sprite';
+
+let taskSVGDefsSprite = gulp.series('SVG', subtaskCleanSVGDefsSprite, subtaskCreateSVGDefsSprite);
+taskSVGDefsSprite.description = 'Export SVG Defs Sprite';
+
+gulp.task('SVG Defs Sprite', taskSVGDefsSprite);
+
+// SVG Symbol Sprite
+function subtaskCleanSVGSymbolSprite() {
+    return del(['./dest/svg-symbol-sprite']);
+}
+subtaskCleanSVGSymbolSprite.displayName = 'Clean SVG Symbol Sprite';
+
+function subtaskCreateSVGSymbolSprite() {
+    let config = svgSpriteCommonConfig;
+    config.mode.symbol = {
+        dest: 'svg-symbol-sprite',
+        bust: false,
+        sprite: 'sprite.svg',
+        example: {
+            template: './templates/svg_symbol_sprite.html',
+            dest: 'index.html'
+        }
+    };
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(svgSprite(config))
+        .pipe(gulp.dest('./dest/'));
+}
+subtaskCreateSVGSymbolSprite.displayName = 'Create SVG Symbol Sprite';
+
+let taskSVGSymbolSprite = gulp.series('SVG', subtaskCleanSVGSymbolSprite, subtaskCreateSVGSymbolSprite);
+taskSVGSymbolSprite.description = 'Export SVG Symbol Sprite';
+
+gulp.task('SVG Symbol Sprite', taskSVGSymbolSprite);
+
+// SVG Stack Sprite
+function subtaskCleanSVGStackSprite() {
+    return del(['./dest/svg-stack-sprite']);
+}
+subtaskCleanSVGStackSprite.displayName = 'Clean SVG Stack Sprite';
+
+function subtaskCreateSVGStackSprite() {
+    let config = svgSpriteCommonConfig;
+    config.mode.stack = {
+        dest: 'svg-stack-sprite',
+        bust: false,
+        sprite: 'sprite.svg',
+        example: {
+            template: './templates/svg_stack_sprite.html',
+            dest: 'index.html'
+        }
+    };
+    return gulp.src('./dest/svg/*.svg')
+        .pipe(svgSprite(config))
+        .pipe(gulp.dest('./dest/'));
+}
+subtaskCreateSVGStackSprite.displayName = 'Create SVG Stack Sprite';
+
+let taskSVGStackSprite = gulp.series('SVG', subtaskCleanSVGStackSprite, subtaskCreateSVGStackSprite);
+taskSVGStackSprite.description = 'Export SVG Stack Sprite';
+
+gulp.task('SVG Stack Sprite', taskSVGStackSprite);

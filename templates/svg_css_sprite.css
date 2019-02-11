@@ -1,0 +1,11 @@
+{{#hasCommon}}.{{commonName}} {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url("{{sprite}}") no-repeat;
+}{{/hasCommon}}
+{{#shapes}}
+{{#selector.shape}}{{expression}}{{^last}},{{/last}}{{/selector.shape}} {
+    {{#hasCommon}}background-position: {{position.absolute.xy}};{{/hasCommon}}{{^hasCommon}}background: url("{{sprite}}") {{position.absolute.xy}} no-repeat;{{/hasCommon}}
+}
+{{/shapes}}
